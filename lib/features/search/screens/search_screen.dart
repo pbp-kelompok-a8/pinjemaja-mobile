@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:pinjem_aja_mobile/main.dart';
 
 class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key});
+  final IconData icon;
+  final String title;
+  const SearchScreen({super.key, required this.title, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cari & Lokasi')),
-      body: const Center(child: Text('Halaman Search & Lokasi')),
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Column(
+        mainAxisAlignment: .center,
+        children: [
+          Icon(icon, size: 72, color: AppColors.secondary),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Modul belum diisi',
+              style: TextStyle(color: AppColors.muted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

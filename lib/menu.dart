@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
-
-class PlaceholderPage extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  const PlaceholderPage({super.key, required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center (child: Column(
-        mainAxisAlignment: .center,
-        children: [
-          Icon(icon, size: 72, color: AppColors.secondary),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppColors.text,
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Modul belum diisi',
-              style: TextStyle(color: AppColors.muted),
-            ),
-          ],
-        ), 
-      ),
-    );
-  }
-}
-
+import 'package:pinjem_aja_mobile/features/transaction/screens/transaction_list_screen.dart';
+import 'package:pinjem_aja_mobile/features/search/screens/search_screen.dart';
+import 'package:pinjem_aja_mobile/features/profile/screens/profile_screen.dart';
+import 'package:pinjem_aja_mobile/features/chat/screens/chat_screen.dart';
+import 'package:pinjem_aja_mobile/features/item/screens/item_list_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -56,11 +26,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int _index = 0;
 
   final List<Widget> _pages = const [
-    PlaceholderPage(title: 'Item',    icon: Icons.inventory_2_outlined),
-    PlaceholderPage(title: 'Seach',      icon: Icons.search),
-    PlaceholderPage(title: 'Transaction', icon: Icons.swap_horiz),
-    PlaceholderPage(title: 'Chat',      icon: Icons.chat_bubble_outline),
-    PlaceholderPage(title: 'Profile',    icon: Icons.person_outline),
+    ItemListScreen(title: 'Item',    icon: Icons.inventory_2_outlined),
+    SearchScreen(title: 'Search',      icon: Icons.search),
+    TransactionListScreen(title: 'Transaction', icon: Icons.swap_horiz),
+    ChatScreen(title: 'Chat',      icon: Icons.chat_bubble_outline),
+    ProfileScreen(title: 'Profile',    icon: Icons.person_outline),
   ];
 
   @override
