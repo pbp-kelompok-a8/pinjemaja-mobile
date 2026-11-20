@@ -77,20 +77,30 @@ Pinjem Aja adalah platform berbasis komunitas yang memungkinkan pengguna meminja
 5. Untuk aksi tambah, ubah, dan hapus data, Flutter mengirim request ke endpoint yang sesuai. Perubahan langsung tersimpan di database Django, sehingga data di aplikasi mobile dan situs web selalu sama.
 6. Endpoint yang butuh login (misalnya tambah barang, transaksi, profil pribadi, riwayat pencarian, dan chat) memakai autentikasi sesi Django lewat `pbp_django_auth`.
 
+## Konvensi API (untuk semua modul)
+
+- **Format respons JSON seragam:** `{"status": true/false, "message": "...", ...}`. Kalau validasi gagal, tambahkan `"errors": {"field": ["pesan"]}` dengan status HTTP 400.
+- **Autentikasi:** session cookie Django. CSRF dinonaktifkan khusus untuk jalur API (`CsrfExemptSessionAuthentication`) karena klien adalah aplikasi mobile, jadi Flutter tidak perlu mengirim CSRF token.
+- **Default endpoint privat:** semua view DRF butuh login. Endpoint yang harus bisa diakses tanpa login (misalnya daftar barang) wajib diberi `@permission_classes([AllowAny])`.
+- **Data privat:** jangan kirim alamat detail dan data pembayaran di endpoint publik.
+- **Prefix:** tiap modul memakai `/api/<nama-modul>/`.
+
 ## Daftar Endpoint Django REST Framework (DRF)
 
 Base URL produksi: `https://khanyfatul-muflikhat-pinjemaja.pws.cs.ui.ac.id`
 
 ### 1. Autentikasi & Profil (`userprofile` — Khanyfatul)
-| Method | Endpoint | Auth | Keterangan |
-|--------|----------|------|------------|
-| `POST` | `/api/auth/register/` | Tidak | Registrasi akun baru |
-| `POST` | `/api/auth/login/` | Tidak | Login akun dan mulai sesi |
-| `POST` | `/api/auth/logout/` | Ya | Logout akun |
-| `GET` | `/api/profile/me/` | Ya | Ambil data profil pengguna login (termasuk alamat & rekening) |
-| `PUT` / `PATCH` | `/api/profile/me/` | Ya | Perbarui profil, domisili, dan info pembayaran |
-| `GET` | `/api/profile/<user_id>/` | Tidak | Lihat profil publik pemilik/pengguna lain |
-| `DELETE` | `/api/profile/avatar/` | Ya | Hapus foto avatar profil |
+| Method | Endpoint | Auth | Status | Keterangan |
+|--------|----------|------|--------|------------|
+| `POST` | `/api/auth/register/` | Tidak | Aktif | Registrasi akun baru. Respons `201` atau `400` (berisi `errors` per field) |
+| `POST` | `/api/auth/login/` | Tidak | Aktif | Login dan mulai sesi. Respons `200` atau `401` |
+| `POST` | `/api/auth/logout/` | Tidak | Aktif | Logout dan akhiri sesi |
+| `GET` | `/api/auth/status/` | Tidak | Aktif | Cek apakah sesi masih login (`is_authenticated`) |
+| `GET` | `/api/profile/me/` | Ya | Dikerjakan | Ambil profil pengguna login (termasuk alamat & rekening) |
+| `PUT` / `PATCH` | `/api/profile/me/` | Ya | Dikerjakan | Perbarui profil, domisili, dan info pembayaran |
+| `GET` | `/api/profile/<user_id>/` | Tidak | Dikerjakan | Profil publik (tanpa alamat detail dan data pembayaran) |
+| `DELETE` | `/api/profile/avatar/` | Ya | Dikerjakan | Hapus foto avatar |
+| `POST` | `/api/profile/delete/` | Ya | Dikerjakan | Hapus akun (soft/hard) dengan konfirmasi password |
 
 ### 2. Barang / Item Listing (`item` — Della)
 | Method | Endpoint | Auth | Keterangan |
@@ -134,7 +144,7 @@ Base URL produksi: `https://khanyfatul-muflikhat-pinjemaja.pws.cs.ui.ac.id`
 | `PUT` / `PATCH` | `/api/chat/messages/<int:id>/` | Ya | Edit pesan milik sendiri |
 | `DELETE` | `/api/chat/messages/<int:id>/` | Ya | Hapus pesan milik sendiri |
 
-> **Catatan:** Path akhir endpoint dapat disesuaikan setelah integrasi DRF di repositori Django selesai di-deploy ke PWS.
+> **Catatan:** Endpoint autentikasi sudah di-deploy dan dapat diakses dari luar jaringan. Endpoint modul lain dapat disesuaikan sebelum pengumpulan akhir; tanda ✅/🚧 di tabel menunjukkan statusnya.
 
 ## Struktur Project
 
@@ -183,3 +193,8 @@ Atur alamat server di `lib/config/api_config.dart`. Untuk emulator Android yang 
 - Satu branch per modul atau fitur, misalnya `feat/search-screen`.
 - Perubahan masuk ke `main` lewat Pull Request.
 - Pesan commit memakai prefix `feat`, `fix`, `docs`, `chore`, atau `test`.
+
+## Keterbatasan yang Diketahui
+
+- CSRF dinonaktifkan di jalur API, dan CORS hanya mengizinkan origin `localhost` untuk keperluan development (Flutter Web di Chrome).
+- Autentikasi memakai session cookie, bukan token.
